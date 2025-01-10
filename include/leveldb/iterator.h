@@ -87,7 +87,7 @@ class LEVELDB_EXPORT Iterator {
     // True if the node is not used. Only head nodes might be unused.
     bool IsEmpty() const { return function == nullptr; }
     // Invokes the cleanup function.
-    void Run() {
+    void Run() const {
       assert(function != nullptr);
       (*function)(arg1, arg2);
     }
