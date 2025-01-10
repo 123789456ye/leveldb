@@ -19,12 +19,13 @@
 #include <cstddef>
 #include <cstring>
 #include <string>
+#include <string_view>
 
 #include "leveldb/export.h"
 
 namespace leveldb {
 
-class LEVELDB_EXPORT Slice {
+/*class LEVELDB_EXPORT Slice {
  public:
   // Create an empty slice.
   Slice() : data_(""), size_(0) {}
@@ -110,7 +111,14 @@ inline int Slice::compare(const Slice& b) const {
       r = +1;
   }
   return r;
-}
+}*/
+
+struct LEVELDB_EXPORT Slice : public std::string_view {
+  using std::string_view::string_view;
+  Slice(const std::string& s) : std::string_view(s.data(),s.size()) {}
+  std::string ToString() const { return std::string(data(), size());}
+  void clear() {remove_prefix(size());}
+};
 
 }  // namespace leveldb
 
