@@ -11,6 +11,8 @@
 #include "util/coding.h"
 #include "util/crc32c.h"
 
+#include <memory>
+
 namespace leveldb {
 
 void BlockHandle::EncodeTo(std::string* dst) const {
@@ -123,14 +125,13 @@ Status ReadBlock(RandomAccessFile* file, const ReadOptions& options,
         delete[] buf;
         return Status::Corruption("corrupted snappy compressed block length");
       }
-      char* ubuf = new char[ulength];
-      if (!port::Snappy_Uncompress(data, n, ubuf)) {
+      std::unique_ptr<char[]> ubuf(new char[ulength]);
+      if (!port::Snappy_Uncompress(data, n, ubuf.get())) {
         delete[] buf;
-        delete[] ubuf;
         return Status::Corruption("corrupted snappy compressed block contents");
       }
       delete[] buf;
-      result->data = Slice(ubuf, ulength);
+      result->data = Slice(ubuf.get(), ulength);
       result->heap_allocated = true;
       result->cachable = true;
       break;
@@ -141,14 +142,13 @@ Status ReadBlock(RandomAccessFile* file, const ReadOptions& options,
         delete[] buf;
         return Status::Corruption("corrupted zstd compressed block length");
       }
-      char* ubuf = new char[ulength];
-      if (!port::Zstd_Uncompress(data, n, ubuf)) {
+      std::unique_ptr<char[]> ubuf(new char[ulength]);
+      if (!port::Zstd_Uncompress(data, n, ubuf.get())) {
         delete[] buf;
-        delete[] ubuf;
         return Status::Corruption("corrupted zstd compressed block contents");
       }
       delete[] buf;
-      result->data = Slice(ubuf, ulength);
+      result->data = Slice(ubuf.get(), ulength);
       result->heap_allocated = true;
       result->cachable = true;
       break;
