@@ -129,12 +129,12 @@ class Repairer {
   }
 
   void ConvertLogFilesToTables() {
-    for (size_t i = 0; i < logs_.size(); i++) {
-      std::string logname = LogFileName(dbname_, logs_[i]);
-      Status status = ConvertLogToTable(logs_[i]);
+    for (const auto& log : logs_) {
+      std::string logname = LogFileName(dbname_, log);
+      Status status = ConvertLogToTable(log);
       if (!status.ok()) {
         Log(options_.info_log, "Log #%llu: ignoring conversion error: %s",
-            (unsigned long long)logs_[i], status.ToString().c_str());
+          (unsigned long long)log, status.ToString().c_str());
       }
       ArchiveFile(logname);
     }
