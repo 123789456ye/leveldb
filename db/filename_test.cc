@@ -17,11 +17,7 @@ TEST(FileNameTest, Parse) {
   uint64_t number;
 
   // Successful parses
-  static struct {
-    const char* fname;
-    uint64_t number;
-    FileType type;
-  } cases[] = {
+  static const std::vector<std::tuple<std::string, uint64_t, FileType>> cases = {
       {"100.log", 100, kLogFile},
       {"0.log", 0, kLogFile},
       {"0.sst", 0, kTableFile},
@@ -34,11 +30,11 @@ TEST(FileNameTest, Parse) {
       {"LOG.old", 0, kInfoLogFile},
       {"18446744073709551615.log", 18446744073709551615ull, kLogFile},
   };
-  for (int i = 0; i < sizeof(cases) / sizeof(cases[0]); i++) {
-    std::string f = cases[i].fname;
-    ASSERT_TRUE(ParseFileName(f, &number, &type)) << f;
-    ASSERT_EQ(cases[i].type, type) << f;
-    ASSERT_EQ(cases[i].number, number) << f;
+
+  for (const auto& [fname, num, typ] : cases) {
+    ASSERT_TRUE(ParseFileName(fname, &number, &type)) << fname;
+    ASSERT_EQ(typ, type) << fname;
+    ASSERT_EQ(num, number) << fname;
   }
 
   // Errors
